@@ -39,12 +39,16 @@ function renderInteractiveChart(sampledData, chartId) {
             {
                 calculate: "datum.danceability * (collapseXSignal)",
                 as: "modified_x"
+            },
+            {
+                calculate: "datum.tempo * (collapseYSignal)",
+                as: "modified_y"
             }
         ],
         mark: { type: "circle", clip: "true" },
         encoding: {
             x: { "field": "modified_x", "type": "quantitative", "scale": { "domain": [0, 1] } },
-            y: { field: "tempo", type: "quantitative", scale: { "domain": [0,220] } },
+            y: { field: "modified_y", "type": "quantitative", "scale": { "domain": [0,220] } },
             color: {
                 field: "playlist_genre",
                 type: "nominal",   
@@ -53,6 +57,11 @@ function renderInteractiveChart(sampledData, chartId) {
         params: [
             {
                 name: "collapseXSignal",
+                value: 1,
+                bind: {input: "range", min:0, max:1, step: 0.01, name: " "}
+            },
+            {
+                name: "collapseYSignal",
                 value: 1,
                 bind: {input: "range", min:0, max:1, step: 0.01, name: " "}
             },

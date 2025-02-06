@@ -21,3 +21,8 @@ body {
     display: flex;
     gap: 10px;
 }
+
+/* Remove number next to slider*/
+input[type="range"] + span {
+    display: none;
+}
