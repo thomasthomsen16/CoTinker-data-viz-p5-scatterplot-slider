@@ -1,13 +1,5 @@
 let interactiveChartView = null; // Global reference to the chart view
 
-// Default initial colors for all genres
-const initialEdmColor = "#4d78a7";  // Blue color for edm
-const initialLatinColor = "#ff6347"; // Tomato color for latin
-const initialPopColor = "#ff4500";  // Orange color for pop
-const initialRnbColor = "#9ccdc9";  // Purple color for r&b
-const initialRapColor = "#87be81";  // Green color for rap
-const initialRockColor = "#f3da76"; // Red color for rock
-
 document.addEventListener("DOMContentLoaded", function () {
     fetch('https://raw.githubusercontent.com/thomasthomsen16/dataset-p2/refs/heads/main/30000_spotify_songs.csv')
         .then(response => response.text())
@@ -22,11 +14,10 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function renderCharts(sampledData) {
-    renderInteractiveChart(sampledData, "interactive-chart");
+    chart1(sampledData, "chart1");
 }
 
-
-function renderInteractiveChart(sampledData, chartId) {
+function chart1(sampledData, chartId) {
     const chartContainer = document.getElementById(chartId);
     chartContainer.innerHTML = ""; // Clear existing content
 
@@ -38,17 +29,17 @@ function renderInteractiveChart(sampledData, chartId) {
         transform: [
             {
                 calculate: "datum.danceability * (collapseXSignal)",
-                as: "modified_x"
+                as: "Danceability"
             },
             {
                 calculate: "datum.tempo * (collapseYSignal)",
-                as: "modified_y"
+                as: "Tempo"
             }
         ],
         mark: { type: "circle", clip: "true" },
         encoding: {
-            x: { "field": "modified_x", "type": "quantitative", "scale": { "domain": [0, 1] } },
-            y: { field: "modified_y", "type": "quantitative", "scale": { "domain": [0,220] } },
+            x: { "field": "Danceability", "type": "quantitative", "scale": { "domain": [0, 1] } },
+            y: { field: "Tempo", "type": "quantitative", "scale": { "domain": [0,220] }},
             color: {
                 field: "playlist_genre",
                 type: "nominal",   
@@ -58,23 +49,44 @@ function renderInteractiveChart(sampledData, chartId) {
             {
                 name: "collapseXSignal",
                 value: 1,
-                bind: {input: "range", min:0, max:1, step: 0.01, name: " "}
+                // bind: {input: "range", min:0, max:1, step: 0.01, name: "X collapse"}
             },
             {
                 name: "collapseYSignal",
                 value: 1,
-                bind: {input: "range", min:0, max:1, step: 0.01, name: " "}
+                // bind: {input: "range", min:0, max:1, step: 0.01, name: "Y collapse"}
             },
         ]
     };
 
     vegaEmbed(`#${chartId}`, spec).then(result => {
         interactiveChartView = result.view;
-        console.log("Interactive chart rendered and view is initialized.");
+        console.log("Chart1 rendered and view is initialized.");
     }).catch(error => {
-        console.error("Error embedding the chart:", error);
+        console.error("Error embedding chart1:", error);
     });
 }
+
+const xCollapseSlider = document.getElementById("xCollapseSlider");
+const yCollapseSlider = document.getElementById("yCollapseSlider");
+
+// Update the collapseXSignal based on the x-axis slider value
+xCollapseSlider.addEventListener("input", function(e) {
+    const newValue = parseFloat(e.target.value);
+    if (interactiveChartView) {
+      // For example: when newValue is 1, points are in their normal positions; when 0, they collapse to x=0.
+      interactiveChartView.signal("collapseXSignal", newValue).runAsync();
+    }
+  });
+
+  // Update the collapseYSignal based on the x-axis slider value
+yCollapseSlider.addEventListener("input", function(e) {
+    const newValue = parseFloat(e.target.value);
+    if (interactiveChartView) {
+      // For example: when newValue is 1, points are in their normal positions; when 0, they collapse to x=0.
+      interactiveChartView.signal("collapseYSignal", newValue).runAsync();
+    }
+  });
 
 // Function to parse CSV data into an array of objects
 function parseCSV(csvData) {
@@ -123,4 +135,3 @@ function getRandomSample(data, sampleSize) {
 
     return sampledData;
 }
-
