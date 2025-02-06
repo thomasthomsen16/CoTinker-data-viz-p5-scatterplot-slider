@@ -1,0 +1,101 @@
+body {
+    margin: 0px;
+    padding: 0px;
+    --main-color: #004078;
+    --main-text-color: white;
+    font-family: 'Roboto', sans-serif;
+    color: var(--main-text-color);
+    background-color: var(--main-color);
+}
+
+.header {
+    background-color: #76c2851a;
+    display: flex;
+    align-items: left;
+    height: 56px;
+    width: 100%;
+    padding-left: 8px;
+}
+
+.chart-container {
+    display: flex;
+    gap: 10px
+}
+
+.y-axis-controls {
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    justify-content: center;
+    padding-left: 8px;
+}
+
+.y-axis-controls>button {
+    margin-top: 5px;
+}
+
+.x-axis-controls {
+    margin-left: 95px;
+    margin-top: 5px;
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+}
+
+.x-axis-controls>div {
+    display: flex;
+    align-items: center;
+}
+
+.x-axis-controls>div>p {
+    padding-right: 5px;
+}
+
+button {
+    font-size: 14px;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+    scale: 1;
+    transition: all 0.25;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-right: 5px;
+    height: 24px;
+    width: 30px;
+}
+
+button:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    scale: 1.05;
+    transition: all 0.25;
+}
+
+
+/* Targeting Vega-Lite color picker containers */
+.vega-bindings {
+    display: flex;
+    gap: 5px;
+    justify-content: flex-start;
+    align-items: center;
+    flex-wrap: wrap;
+    width: 841px; /* Width from chart container. Should be set dynamically*/
+}
+
+.vega-bind-name {
+    padding-right: 5px;
+}
+
+input[type="color" i] {
+    border-radius: 5px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: none;
+    scale: 1;
+    transition: all 0.25;
+}
+
+input[type="color" i]:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    scale: 1.05;
+    transition: all 0.25;
+}
