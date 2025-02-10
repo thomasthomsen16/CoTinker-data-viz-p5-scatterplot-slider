@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 function renderCharts(sampledData) {
     chart1(sampledData, "chart1");
-}
+    chart2(sampledData,"chart2")
 
 function chart1(sampledData, chartId) {
     const chartContainer = document.getElementById(chartId);
@@ -39,10 +39,10 @@ function chart1(sampledData, chartId) {
         mark: { type: "circle", clip: "true" },
         encoding: {
             x: { "field": "Danceability", "type": "quantitative", "scale": { "domain": [0, 1] } },
-            y: { field: "Tempo", "type": "quantitative", "scale": { "domain": [0,220] }},
+            y: { field: "Tempo", "type": "quantitative", "scale": { "domain": [0, 220] } },
             color: {
                 field: "playlist_genre",
-                type: "nominal",   
+                type: "nominal",
             }
         },
         params: [
@@ -67,26 +67,174 @@ function chart1(sampledData, chartId) {
     });
 }
 
+function chart2 (sampledData,chartId) {
+    const chartContainer = document.getElementById(chartId);
+    chartContainer.innerHTML = ""; // Clear existing content
+
+    const spec = {
+        "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+        "description": "Parallel coordinates plot for Spotify songs showing audio features, color-coded by genre.",
+        "data": {
+            "values": sampledData  // Data passed from JavaScript (after parsing CSV)
+        },
+        "width": 700,
+        "height": 600,
+               "transform": [
+            {
+                "filter": "datum['danceability'] != null && datum['energy'] != null && datum['valence'] != null && datum['tempo'] != null"
+            },
+            {
+                "window": [{ "op": "count", "as": "index" }]
+            },
+            {
+                "fold": ["tempo", "danceability", "energy", "valence"],  // Only the selected features
+                "as": ["key", "value"]
+            },
+            {
+                "joinaggregate": [
+                    { "op": "min", "field": "value", "as": "min" },
+                    { "op": "max", "field": "value", "as": "max" }
+                ],
+                "groupby": ["key"]
+            },
+            {
+                "calculate": "(datum.value - datum.min) / (datum.max - datum.min)",
+                "as": "norm_val"
+            },
+            {
+                "calculate": "(datum.min + datum.max) / 2",
+                "as": "mid"
+            }
+        ],
+        "layer": [
+            {
+                "mark": { "type": "rule", "color": "#ccc" },
+                "encoding": {
+                    "detail": { "aggregate": "count" },
+                    "x": {
+                        "type": "nominal",
+                        "field": "key",
+                        "sort": ["tempo", "danceability", "energy", "valence"]
+                    }
+                }
+            },
+            {
+                "mark": "line",
+                "encoding": {
+                    "color": { "type": "nominal", "field": "playlist_genre" },
+                    "detail": { "type": "nominal", "field": "index" },
+                    "x": {
+                        "type": "nominal",
+                        "field": "key",
+                        "sort": ["tempo", "danceability", "energy", "valence"]
+                    },
+                    "y": { "type": "quantitative", "field": "norm_val", "axis": null },
+                    "tooltip": [
+                        { "type": "quantitative", "field": "tempo" },
+                        { "type": "quantitative", "field": "danceability" },
+                        { "type": "quantitative", "field": "energy" },
+                        { "type": "quantitative", "field": "valence" }
+                    ]
+                }
+            },
+            {
+                "encoding": {
+                    "x": {
+                        "type": "nominal",
+                        "field": "key",
+                        "sort": ["tempo", "danceability", "energy", "valence"]
+                    },
+                    "y": { "value": 0 }
+                },
+                "layer": [
+                    {
+                        "mark": { "type": "text", "style": "label" },
+                        "encoding": {
+                            "text": { "aggregate": "max", "field": "max" }
+                        }
+                    },
+                    {
+                        "mark": { "type": "tick", "style": "tick", "size": 8, "color": "#ccc" }
+                    }
+                ]
+            },
+            {
+                "encoding": {
+                    "x": {
+                        "type": "nominal",
+                        "field": "key",
+                        "sort": ["tempo", "danceability", "energy", "valence"]
+                    },
+                    "y": { "value": 150 }
+                },
+                "layer": [
+                    {
+                        "mark": { "type": "text", "style": "label" },
+                        "encoding": {
+                            "text": { "aggregate": "min", "field": "mid" }
+                        }
+                    },
+                    {
+                        "mark": { "type": "tick", "style": "tick", "size": 8, "color": "#ccc" }
+                    }
+                ]
+            },
+            {
+                "encoding": {
+                    "x": {
+                        "type": "nominal",
+                        "field": "key",
+                        "sort": ["tempo", "danceability", "energy", "valence"]
+                    },
+                    "y": { "value": 300 }
+                },
+                "layer": [
+                    {
+                        "mark": { "type": "text", "style": "label" },
+                        "encoding": {
+                            "text": { "aggregate": "min", "field": "min" }
+                        }
+                    },
+                    {
+                        "mark": { "type": "tick", "style": "tick", "size": 8, "color": "#ccc" }
+                    }
+                ]
+            }
+        ],
+        "config": {
+            "axisX": { "domain": false, "labelAngle": 0, "tickColor": "#ccc", "title": null },
+            "view": { "stroke": null },
+            "style": {
+                "label": { "baseline": "middle", "align": "right", "dx": -5 },
+                "tick": { "orient": "horizontal" }
+            }
+        }
+    };
+
+    vegaEmbed(`#${chartId}`, spec);
+}
+}
+
 const xCollapseSlider = document.getElementById("xCollapseSlider");
 const yCollapseSlider = document.getElementById("yCollapseSlider");
 
 // Update the collapseXSignal based on the x-axis slider value
-xCollapseSlider.addEventListener("input", function(e) {
+xCollapseSlider.addEventListener("input", function (e) {
     const newValue = parseFloat(e.target.value);
     if (interactiveChartView) {
-      // For example: when newValue is 1, points are in their normal positions; when 0, they collapse to x=0.
-      interactiveChartView.signal("collapseXSignal", newValue).runAsync();
+        // For example: when newValue is 1, points are in their normal positions; when 0, they collapse to x=0.
+        interactiveChartView.signal("collapseXSignal", newValue).runAsync();
     }
-  });
+});
 
-  // Update the collapseYSignal based on the x-axis slider value
-yCollapseSlider.addEventListener("input", function(e) {
+// Update the collapseYSignal based on the x-axis slider value
+yCollapseSlider.addEventListener("input", function (e) {
     const newValue = parseFloat(e.target.value);
     if (interactiveChartView) {
-      // For example: when newValue is 1, points are in their normal positions; when 0, they collapse to x=0.
-      interactiveChartView.signal("collapseYSignal", newValue).runAsync();
+        // For example: when newValue is 1, points are in their normal positions; when 0, they collapse to x=0.
+        interactiveChartView.signal("collapseYSignal", newValue).runAsync();
     }
-  });
+});
 
 // Grab the value of the sliders and set the buttons to active when slider = 0 
 const ySlider = document.getElementById('yCollapseSlider');
@@ -153,7 +301,6 @@ function getRandomSample(data, sampleSize) {
             seenIndexes.add(randomIndex);
         }
     }
-
     return sampledData;
 }
 
