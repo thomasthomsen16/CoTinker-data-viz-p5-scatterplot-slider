@@ -31,8 +31,27 @@ body {
 }
 
 button {
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
     border-radius: 5px;
+    margin-right: 5px;
+    transition: all 0.25s;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white
 }
+
+
+button:disabled {
+    background-color: rgba(149, 149, 149, 0.5);
+    color: rgb(255, 255, 255, 0.5);
+    cursor: not-allowed;
+}
+
+button:not(:disabled):hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
 
 .y-slider-container {
     display: flex;
