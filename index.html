@@ -17,17 +17,23 @@
     <div class="header">
         <img src="Assets/CoTinker_Logo_hvid.svg" alt="" height="56px">
     </div>
-    <div class="y-slider-container">
-        <label for="yCollapseSlider">Y Collapse:</label>
-        <input id="yCollapseSlider" type="range" min="0" max="1" step="0.01" value="1">
-      </div>
-    <div id="chart-container" class="chart-container">
-        <div id="chart1"></div>
+    <div class="horisontal-top">
+        <div class="y-slider-container">
+            <label for="yCollapseSlider">Y Collapse:</label>
+            <input id="yCollapseSlider" type="range" min="0" max="1" step="0.01" value="1">
+            <button type="button" disabled>Transfer</button>
+          </div>
+        <div id="chart-container" class="chart-container">
+            <div id="chart1"></div>
+        </div>
     </div>
-    <div class="x-slider-container">
-        <label for="xCollapseSlider">X Collapse:</label>
-        <input id="xCollapseSlider" type="range" min="0" max="1" step="0.01" value="1">
-      </div>
+    <div class="horisontal-bottom">
+        <div class="x-slider-container">
+            <label for="xCollapseSlider">X Collapse:</label>
+            <input id="xCollapseSlider" type="range" min="0" max="1" step="0.01" value="1">
+            <button type="button" disabled>Transfer</button>
+          </div>
+    </div>
     <script src="main.js"></script>
 </body>
 

@@ -22,7 +22,26 @@ body {
     gap: 10px;
 }
 
-/* Remove number next to slider*/
-input[type="range"] + span {
-    display: none;
+.horisontal-top {
+    display: flex;
+}
+
+.horisontal-bottom {
+    display: flex;
+}
+
+button {
+    border-radius: 5px;
+}
+
+.y-slider-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#yCollapseSlider {
+    transform: rotate(-90deg);
+      transform-origin: left top;
 }
