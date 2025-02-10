@@ -39,9 +39,22 @@ button {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    gap: 10px; /* Add some space between the elements */
+    
+}
+.x-slider-container {
+    display: flex;
+    flex-direction:row;
+    justify-content: center;
+    align-items: center;
+    gap: 10px; /* Add some space between the elements */
+    
 }
 
 #yCollapseSlider {
     transform: rotate(-90deg);
-      transform-origin: left top;
+    transform-origin: center;
+    gap: 10px;
+    height: 120px; /* Adjust the height as needed */
+    overflow: hidden; /* Prevent overflow */
 }
