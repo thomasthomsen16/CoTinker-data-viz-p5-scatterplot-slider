@@ -11,6 +11,27 @@ document.addEventListener("DOMContentLoaded", function () {
             renderCharts(sampledData);
         })
         .catch(error => console.error("Error loading CSV data: ", error));
+
+        // Grab the value of the sliders and set the buttons to active when slider = 0 
+        const ySlider = document.getElementById('yCollapseSlider');
+        const yButton = document.getElementById('y-button');
+        const xSlider = document.getElementById('xCollapseSlider');
+        const xButton = document.getElementById('x-button');
+    
+        ySlider.addEventListener('input', function() {
+            if (ySlider.value == 0) {
+                yButton.disabled = false;
+            } else {
+                yButton.disabled = true;
+            }
+        });
+        xSlider.addEventListener('input', function() {
+            if (xSlider.value == 0) {
+                xButton.disabled = false;
+            } else {
+                xButton.disabled = true;
+            }
+        });
 });
 
 function renderCharts(sampledData) {
@@ -135,3 +156,4 @@ function getRandomSample(data, sampleSize) {
 
     return sampledData;
 }
+
