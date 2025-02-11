@@ -1,11 +1,12 @@
 let interactiveChartView = null; // Global reference to the chart view
+let chart2View = null; // Reference to the parallel coordinate plot view
 
 document.addEventListener("DOMContentLoaded", function () {
     fetch('https://raw.githubusercontent.com/thomasthomsen16/dataset-p2/refs/heads/main/30000_spotify_songs.csv')
         .then(response => response.text())
         .then(csvData => {
             const parsedData = parseCSV(csvData);
-            const sampledData = getRandomSample(parsedData, 1000);
+            const sampledData = getRandomSample(parsedData, 80);
 
             // Render both charts (interactive & static)
             renderCharts(sampledData);
@@ -15,7 +16,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
 function renderCharts(sampledData) {
     chart1(sampledData, "chart1");
-    chart2(sampledData,"chart2")
+    chart2(sampledData, "chart2")
+}
 
 function chart1(sampledData, chartId) {
     const chartContainer = document.getElementById(chartId);
@@ -67,7 +69,7 @@ function chart1(sampledData, chartId) {
     });
 }
 
-function chart2 (sampledData,chartId) {
+function chart2(sampledData, chartId) {
     const chartContainer = document.getElementById(chartId);
     chartContainer.innerHTML = ""; // Clear existing content
 
@@ -78,8 +80,15 @@ function chart2 (sampledData,chartId) {
             "values": sampledData  // Data passed from JavaScript (after parsing CSV)
         },
         "width": 700,
-        "height": 600,
-               "transform": [
+        "height": 615,
+        // Add four parameters to control the visibility of each variable’s data points:
+        "params": [
+            { "name": "showTempo", "value": false },
+            { "name": "showDanceability", "value": false },
+            { "name": "showEnergy", "value": false },
+            { "name": "showValence", "value": false }
+        ],
+        "transform": [
             {
                 "filter": "datum['danceability'] != null && datum['energy'] != null && datum['valence'] != null && datum['tempo'] != null"
             },
@@ -87,8 +96,12 @@ function chart2 (sampledData,chartId) {
                 "window": [{ "op": "count", "as": "index" }]
             },
             {
-                "fold": ["tempo", "danceability", "energy", "valence"],  // Only the selected features
+                "fold": ["tempo", "danceability", "energy", "valence"],
                 "as": ["key", "value"]
+            },
+            {
+                "calculate": "toNumber(datum.value)",
+                "as": "value"
             },
             {
                 "joinaggregate": [
@@ -98,7 +111,7 @@ function chart2 (sampledData,chartId) {
                 "groupby": ["key"]
             },
             {
-                "calculate": "(datum.value - datum.min) / (datum.max - datum.min)",
+                "calculate": "datum.max === datum.min ? 0 : (datum.value - datum.min) / (datum.max - datum.min)",
                 "as": "norm_val"
             },
             {
@@ -107,6 +120,7 @@ function chart2 (sampledData,chartId) {
             }
         ],
         "layer": [
+            // Layer 1: Draw rules (e.g. grid lines) for each axis.
             {
                 "mark": { "type": "rule", "color": "#ccc" },
                 "encoding": {
@@ -118,8 +132,14 @@ function chart2 (sampledData,chartId) {
                     }
                 }
             },
+            // Layer 2: Draw connecting lines.
             {
                 "mark": "line",
+                "transform": [
+                    {
+                        "filter": "showTempo && showDanceability && showEnergy && showValence"
+                    }
+                ],
                 "encoding": {
                     "color": { "type": "nominal", "field": "playlist_genre" },
                     "detail": { "type": "nominal", "field": "index" },
@@ -137,6 +157,33 @@ function chart2 (sampledData,chartId) {
                     ]
                 }
             },
+            // Layer 3: Draw data points (only if the corresponding variable is active).
+            {
+                "mark": "point",
+                "transform": [
+                    {
+                        "filter": "(datum.key=='tempo' && showTempo) || (datum.key=='danceability' && showDanceability) || (datum.key=='energy' && showEnergy) || (datum.key=='valence' && showValence)"
+                    }
+                ],
+                "encoding": {
+                    "color": { "type": "nominal", "field": "playlist_genre" },
+                    "detail": { "type": "nominal", "field": "index" },
+                    "x": {
+                        "type": "nominal",
+                        "field": "key",
+                        "sort": ["tempo", "danceability", "energy", "valence"]
+                    },
+                    "y": { "type": "quantitative", "field": "norm_val", "axis": null },
+                    "size": { "value": 30 },
+                    "tooltip": [
+                        { "type": "quantitative", "field": "tempo" },
+                        { "type": "quantitative", "field": "danceability" },
+                        { "type": "quantitative", "field": "energy" },
+                        { "type": "quantitative", "field": "valence" }
+                    ]
+                }
+            },
+            // Layer 4: Draw top labels/ticks.
             {
                 "encoding": {
                     "x": {
@@ -158,6 +205,7 @@ function chart2 (sampledData,chartId) {
                     }
                 ]
             },
+            // Layer 5: Draw middle labels/ticks.
             {
                 "encoding": {
                     "x": {
@@ -179,6 +227,7 @@ function chart2 (sampledData,chartId) {
                     }
                 ]
             },
+            // Layer 6: Draw bottom labels/ticks.
             {
                 "encoding": {
                     "x": {
@@ -211,9 +260,16 @@ function chart2 (sampledData,chartId) {
         }
     };
 
-    vegaEmbed(`#${chartId}`, spec);
-}
-}
+    vegaEmbed(`#${chartId}`, spec)
+        .then(result => {
+            chart2View = result.view;
+            console.log("Chart2 rendered and view is initialized.");
+        })
+        .catch(error => {
+            console.error("Error embedding chart2:", error);
+        });
+};
+
 
 const xCollapseSlider = document.getElementById("xCollapseSlider");
 const yCollapseSlider = document.getElementById("yCollapseSlider");
@@ -257,30 +313,66 @@ xCollapseSlider.addEventListener('input', function () {
     }
 });
 
+// Assume chart2View is a global variable that stores the Vega view for chart2.
+
+xButton.addEventListener('click', function () {
+    if (chart2View) {
+        chart2View.signal("showTempo", true).runAsync();
+    }
+    // Rest the xCollapseSlider value to 1
+    xCollapseSlider.value = 1;
+    if (interactiveChartView) {
+        interactiveChartView.signal("collapseXSignal", 1).runAsync();
+    }
+});
+
+yButton.addEventListener('click', function () {
+    if (chart2View) {
+        chart2View.signal("showDanceability", true).runAsync();
+    }
+    // Reset the yCollapseSlider value to 1
+    yCollapseSlider.value = 1;
+    if (interactiveChartView) {
+        interactiveChartView.signal("collapseYSignal", 1).runAsync();
+    }
+});
+
+
 // Function to parse CSV data into an array of objects
 function parseCSV(csvData) {
-    const rows = csvData.split("\n").filter(row => row.trim() !== ""); // Remove empty rows
-    const header = rows[0].split(",").map(column => column.trim()); // Trim headers
+    const rows = csvData.split("\n").filter(row => row.trim() !== "");
+    const header = rows[0].split(",").map(column => column.trim());
 
     return rows.slice(1).map(row => {
         const values = row.split(",");
-
         if (values.length !== header.length) {
             return null; // Skip rows with mismatched columns
         }
-
         let parsedRow = {};
         header.forEach((column, index) => {
             parsedRow[column] = values[index].trim();
         });
 
-        // Convert danceability and tempo to numbers
+        // Convert fields to numbers:
         parsedRow.danceability = isNaN(parsedRow.danceability) ? null : parseFloat(parsedRow.danceability);
         parsedRow.tempo = isNaN(parsedRow.tempo) ? null : parseFloat(parsedRow.tempo);
+        parsedRow.energy = isNaN(parsedRow.energy) ? null : parseFloat(parsedRow.energy);
+        parsedRow.valence = isNaN(parsedRow.valence) ? null : parseFloat(parsedRow.valence);
 
-        return parsedRow.danceability !== null && parsedRow.tempo !== null ? parsedRow : null;
+        // Only return the row if all values are valid:
+        if (
+            parsedRow.danceability !== null &&
+            parsedRow.tempo !== null &&
+            parsedRow.energy !== null &&
+            parsedRow.valence !== null
+        ) {
+            return parsedRow;
+        } else {
+            return null;
+        }
     }).filter(row => row !== null);
-}
+};
+
 
 // Function to get a random sample of data points
 function getRandomSample(data, sampleSize) {
@@ -303,4 +395,3 @@ function getRandomSample(data, sampleSize) {
     }
     return sampledData;
 }
-
