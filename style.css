@@ -94,3 +94,7 @@ button:not(:disabled):hover {
     height: 120px; /* Adjust the height as needed */
     overflow: hidden; /* Prevent overflow */
 }
+
+.marks {
+    border-radius: 5px;
+}
