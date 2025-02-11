@@ -70,10 +70,18 @@ button:not(:disabled):hover {
     gap: 10px; /* Add some space between the elements */
     margin-left: 100px;
     margin-top: 6px;
+    margin-bottom: 6px;
     
 }
 
 #yCollapseSlider {
+    transform: rotate(-90deg);
+    transform-origin: center;
+    gap: 10px;
+    height: 120px; /* Adjust the height as needed */
+    overflow: hidden; /* Prevent overflow */
+}
+#yCollapseSlider2 {
     transform: rotate(-90deg);
     transform-origin: center;
     gap: 10px;

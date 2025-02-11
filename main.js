@@ -1,5 +1,6 @@
-let interactiveChartView = null; // Global reference to the chart view
+let chart1view = null; // Global reference to the chart view
 let chart2View = null; // Reference to the parallel coordinate plot view
+let chart3view = null;
 
 document.addEventListener("DOMContentLoaded", function () {
     fetch('https://raw.githubusercontent.com/thomasthomsen16/dataset-p2/refs/heads/main/30000_spotify_songs.csv')
@@ -8,7 +9,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const parsedData = parseCSV(csvData);
             const sampledData = getRandomSample(parsedData, 80);
 
-            // Render both charts (interactive & static)
+            // Render all 3 charts
             renderCharts(sampledData);
         })
         .catch(error => console.error("Error loading CSV data: ", error));
@@ -16,7 +17,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
 function renderCharts(sampledData) {
     chart1(sampledData, "chart1");
-    chart2(sampledData, "chart2")
+    chart2(sampledData, "chart2");
+    chart3(sampledData,"chart3");
 }
 
 function chart1(sampledData, chartId) {
@@ -52,18 +54,16 @@ function chart1(sampledData, chartId) {
             {
                 name: "collapseXSignal",
                 value: 1,
-                // bind: {input: "range", min:0, max:1, step: 0.01, name: "X collapse"}
             },
             {
                 name: "collapseYSignal",
                 value: 1,
-                // bind: {input: "range", min:0, max:1, step: 0.01, name: "Y collapse"}
             },
         ]
     };
 
     vegaEmbed(`#${chartId}`, spec).then(result => {
-        interactiveChartView = result.view;
+        chart1view = result.view;
         console.log("Chart1 rendered and view is initialized.");
     }).catch(error => {
         console.error("Error embedding chart1:", error);
@@ -271,33 +271,83 @@ function chart2(sampledData, chartId) {
         });
 };
 
+function chart3(sampledData, chartId) {
+    const chartContainer = document.getElementById(chartId);
+    chartContainer.innerHTML = ""; // Clear existing content
 
+    const spec = {
+        $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+        width: 700,
+        height: 600,
+        data: { values: sampledData },
+        transform: [
+            {
+                calculate: "datum.valence * (collapseXSignal2)",
+                as: "Valence"
+            },
+            {
+                calculate: "datum.energy * (collapseYSignal2)",
+                as: "Energy"
+            }
+        ],
+        mark: { type: "circle", clip: "true" },
+        encoding: {
+            x: { "field": "Valence", "type": "quantitative", "scale": { "domain": [0, 1] } },
+            y: { field: "Energy", "type": "quantitative", "scale": { "domain": [0, 1] } },
+            color: {
+                field: "playlist_genre",
+                type: "nominal",
+                scale: { scheme: "set2" }
+            }
+        },
+        params: [
+            {
+                name: "collapseXSignal2",
+                value: 1,
+            },
+            {
+                name: "collapseYSignal2",
+                value: 1,
+            },
+        ]
+    };
+
+    vegaEmbed(`#${chartId}`, spec).then(result => {
+        chart3view = result.view;
+        console.log("Chart3 rendered and view is initialized.");
+    }).catch(error => {
+        console.error("Error embedding chart3:", error);
+    });
+}
+
+// Chart 2 interaction
 const xCollapseSlider = document.getElementById("xCollapseSlider");
 const yCollapseSlider = document.getElementById("yCollapseSlider");
 
 // Update the collapseXSignal based on the x-axis slider value
 xCollapseSlider.addEventListener("input", function (e) {
     const newValue = parseFloat(e.target.value);
-    if (interactiveChartView) {
+    if (chart1view) {
         // For example: when newValue is 1, points are in their normal positions; when 0, they collapse to x=0.
-        interactiveChartView.signal("collapseXSignal", newValue).runAsync();
+        chart1view.signal("collapseXSignal", newValue).runAsync();
     }
 });
 
 // Update the collapseYSignal based on the x-axis slider value
 yCollapseSlider.addEventListener("input", function (e) {
     const newValue = parseFloat(e.target.value);
-    if (interactiveChartView) {
+    if (chart1view) {
         // For example: when newValue is 1, points are in their normal positions; when 0, they collapse to x=0.
-        interactiveChartView.signal("collapseYSignal", newValue).runAsync();
+        chart1view.signal("collapseYSignal", newValue).runAsync();
     }
 });
 
-// Grab the value of the sliders and set the buttons to active when slider = 0 
+// Grab the value of the sliders and set the buttons to active when slider = 0 for chart 1
 const ySlider = document.getElementById('yCollapseSlider');
 const yButton = document.getElementById('y-button');
 const xSlider = document.getElementById('xCollapseSlider');
 const xButton = document.getElementById('x-button');
+
 
 yCollapseSlider.addEventListener('input', function () {
     if (yCollapseSlider.value == 0) {
@@ -324,8 +374,8 @@ xButton.addEventListener('click', function () {
     xCollapseSlider.value = 1;
     xButton.disabled=true;
     yCollapseSlider.disabled=false;
-    if (interactiveChartView) {
-        interactiveChartView.signal("collapseXSignal", 1).runAsync();
+    if (chart1view) {
+        chart1view.signal("collapseXSignal", 1).runAsync();
     }
 });
 
@@ -336,11 +386,82 @@ yButton.addEventListener('click', function () {
     // Reset the yCollapseSlider value to 1
     yCollapseSlider.value = 1;
     yButton.disabled=true;
-    if (interactiveChartView) {
-        interactiveChartView.signal("collapseYSignal", 1).runAsync();
+    if (chart1view) {
+        chart1view.signal("collapseYSignal", 1).runAsync();
     }
 });
 
+// Chart3 interaction
+
+const xCollapseSlider2 = document.getElementById("xCollapseSlider2");
+const yCollapseSlider2 = document.getElementById("yCollapseSlider2");
+
+// Update the collapseXSignal based on the x-axis slider value
+xCollapseSlider2.addEventListener("input", function (e) {
+    const newValue = parseFloat(e.target.value);
+    if (chart3view) {
+        // For example: when newValue is 1, points are in their normal positions; when 0, they collapse to x=0.
+        chart3view.signal("collapseXSignal2", newValue).runAsync();
+    }
+});
+
+// Update the collapseYSignal based on the x-axis slider value
+yCollapseSlider2.addEventListener("input", function (e) {
+    const newValue = parseFloat(e.target.value);
+    if (chart3view) {
+        // For example: when newValue is 1, points are in their normal positions; when 0, they collapse to x=0.
+        chart3view.signal("collapseYSignal2", newValue).runAsync();
+    }
+});
+
+// Grab the value of the sliders and set the buttons to active when slider = 0 for chart 1
+const ySlider2 = document.getElementById('yCollapseSlider2');
+const yButton2 = document.getElementById('y-button2');
+const xSlider2 = document.getElementById('xCollapseSlider2');
+const xButton2 = document.getElementById('x-button2');
+
+
+yCollapseSlider2.addEventListener('input', function () {
+    if (yCollapseSlider2.value == 0) {
+        yButton2.disabled = false;
+    } else {
+        yButton2.disabled = true;
+    }
+});
+xCollapseSlider2.addEventListener('input', function () {
+    if (xCollapseSlider2.value == 0) {
+        xButton2.disabled = false;
+    } else {
+        xButton2.disabled = true;
+    }
+});
+
+// Assume chart2View is a global variable that stores the Vega view for chart2.
+
+xButton2.addEventListener('click', function () {
+    if (chart2View) {
+        chart2View.signal("showValence", true).runAsync();
+    }
+    // Rest the xCollapseSlider1 value to 1
+    xCollapseSlider2.value = 1;
+    xButton2.disabled=true;
+    yCollapseSlider2.disabled=false;
+    if (chart3view) {
+        chart3view.signal("collapseXSignal2", 1).runAsync();
+    }
+});
+
+yButton2.addEventListener('click', function () {
+    if (chart2View) {
+        chart2View.signal("showEnergy", true).runAsync();
+    }
+    // Reset the yCollapseSlider2 value to 1
+    yCollapseSlider2.value = 1;
+    yButton2.disabled=true;
+    if (chart3view) {
+        chart3view.signal("collapseYSignal", 1).runAsync();
+    }
+});
 
 // Function to parse CSV data into an array of objects
 function parseCSV(csvData) {
