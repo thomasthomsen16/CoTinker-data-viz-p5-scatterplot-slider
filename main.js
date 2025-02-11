@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", function () {
 function renderCharts(sampledData) {
     chart1(sampledData, "chart1");
     chart2(sampledData, "chart2");
-    chart3(sampledData,"chart3");
+    chart3(sampledData, "chart3");
 }
 
 function chart1(sampledData, chartId) {
@@ -372,8 +372,8 @@ xButton.addEventListener('click', function () {
     }
     // Rest the xCollapseSlider value to 1
     xCollapseSlider.value = 1;
-    xButton.disabled=true;
-    yCollapseSlider.disabled=false;
+    xButton.disabled = true;
+    yCollapseSlider.disabled = false;
     if (chart1view) {
         chart1view.signal("collapseXSignal", 1).runAsync();
     }
@@ -385,7 +385,7 @@ yButton.addEventListener('click', function () {
     }
     // Reset the yCollapseSlider value to 1
     yCollapseSlider.value = 1;
-    yButton.disabled=true;
+    yButton.disabled = true;
     if (chart1view) {
         chart1view.signal("collapseYSignal", 1).runAsync();
     }
@@ -444,8 +444,8 @@ xButton2.addEventListener('click', function () {
     }
     // Rest the xCollapseSlider1 value to 1
     xCollapseSlider2.value = 1;
-    xButton2.disabled=true;
-    yCollapseSlider2.disabled=false;
+    xButton2.disabled = true;
+    yCollapseSlider2.disabled = false;
     if (chart3view) {
         chart3view.signal("collapseXSignal2", 1).runAsync();
     }
@@ -457,7 +457,7 @@ yButton2.addEventListener('click', function () {
     }
     // Reset the yCollapseSlider2 value to 1
     yCollapseSlider2.value = 1;
-    yButton2.disabled=true;
+    yButton2.disabled = true;
     if (chart3view) {
         chart3view.signal("collapseYSignal", 1).runAsync();
     }
