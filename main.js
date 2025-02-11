@@ -159,7 +159,7 @@ function chart2(sampledData, chartId) {
             },
             // Layer 3: Draw data points (only if the corresponding variable is active).
             {
-                "mark": "point",
+                "mark": "circle",
                 "transform": [
                     {
                         "filter": "(datum.key=='tempo' && showTempo) || (datum.key=='danceability' && showDanceability) || (datum.key=='energy' && showEnergy) || (datum.key=='valence' && showValence)"
