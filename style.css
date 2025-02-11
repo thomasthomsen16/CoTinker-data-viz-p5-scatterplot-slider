@@ -22,6 +22,10 @@ body {
     gap: 10px;
 }
 
+#chart-container2 {
+    flex-direction: column;
+}
+
 .horisontal-top {
     display: flex;
 }
@@ -65,13 +69,15 @@ button:not(:disabled):hover {
 .x-slider-container {
     display: flex;
     flex-direction:row;
-    justify-content: center;
+    justify-content: left;
     align-items: center;
     gap: 10px; /* Add some space between the elements */
-    margin-left: 100px;
     margin-top: 6px;
-    margin-bottom: 6px;
-    
+    margin-bottom: 6px; 
+}
+
+#x-slider-container {
+    margin-left:100px;
 }
 
 #yCollapseSlider {
