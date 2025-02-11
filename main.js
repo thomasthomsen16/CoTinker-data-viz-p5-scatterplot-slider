@@ -35,16 +35,17 @@ function chart1(sampledData, chartId) {
             },
             {
                 calculate: "datum.tempo * (collapseYSignal)",
-                as: "Tempo"
+                as: "Tempo (BPM)"
             }
         ],
         mark: { type: "circle", clip: "true" },
         encoding: {
             x: { "field": "Danceability", "type": "quantitative", "scale": { "domain": [0, 1] } },
-            y: { field: "Tempo", "type": "quantitative", "scale": { "domain": [0, 220] } },
+            y: { field: "Tempo (BPM)", "type": "quantitative", "scale": { "domain": [0, 220] } },
             color: {
                 field: "playlist_genre",
                 type: "nominal",
+                scale: { scheme: "set2" }
             }
         },
         params: [
@@ -141,7 +142,7 @@ function chart2(sampledData, chartId) {
                     }
                 ],
                 "encoding": {
-                    "color": { "type": "nominal", "field": "playlist_genre" },
+                    "color": { "type": "nominal", "field": "playlist_genre", scale: { scheme: "set2" } },
                     "detail": { "type": "nominal", "field": "index" },
                     "x": {
                         "type": "nominal",
@@ -321,6 +322,8 @@ xButton.addEventListener('click', function () {
     }
     // Rest the xCollapseSlider value to 1
     xCollapseSlider.value = 1;
+    xButton.disabled=true;
+    yCollapseSlider.disabled=false;
     if (interactiveChartView) {
         interactiveChartView.signal("collapseXSignal", 1).runAsync();
     }
@@ -332,6 +335,7 @@ yButton.addEventListener('click', function () {
     }
     // Reset the yCollapseSlider value to 1
     yCollapseSlider.value = 1;
+    yButton.disabled=true;
     if (interactiveChartView) {
         interactiveChartView.signal("collapseYSignal", 1).runAsync();
     }
