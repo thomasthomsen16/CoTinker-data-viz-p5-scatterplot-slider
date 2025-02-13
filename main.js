@@ -320,7 +320,7 @@ function chart3(sampledData, chartId) {
     });
 }
 
-// Chart 2 interaction
+// Chart 1 interaction
 const xCollapseSlider = document.getElementById("xCollapseSlider");
 const yCollapseSlider = document.getElementById("yCollapseSlider");
 
@@ -348,22 +348,6 @@ const yButton = document.getElementById('y-button');
 const xSlider = document.getElementById('xCollapseSlider');
 const xButton = document.getElementById('x-button');
 
-
-yCollapseSlider.addEventListener('input', function () {
-    if (yCollapseSlider.value == 0) {
-        yButton.disabled = false;
-    } else {
-        yButton.disabled = true;
-    }
-});
-xCollapseSlider.addEventListener('input', function () {
-    if (xCollapseSlider.value == 0) {
-        xButton.disabled = false;
-    } else {
-        xButton.disabled = true;
-    }
-});
-
 // Assume chart2View is a global variable that stores the Vega view for chart2.
 
 xButton.addEventListener('click', function () {
@@ -390,6 +374,15 @@ yButton.addEventListener('click', function () {
         chart1view.signal("collapseYSignal", 1).runAsync();
     }
 });
+
+// Snaps the slider to either 0 or 1 on mouseup
+xCollapseSlider.addEventListener("mouseup", () => {
+    snapSlider(xCollapseSlider, "collapseXSignal", xButton, chart1view)
+})
+yCollapseSlider.addEventListener("mouseup", () => {
+    snapSlider(yCollapseSlider, "collapseYSignal", yButton, chart1view)
+})
+
 
 // Chart3 interaction
 
@@ -420,22 +413,6 @@ const yButton2 = document.getElementById('y-button2');
 const xSlider2 = document.getElementById('xCollapseSlider2');
 const xButton2 = document.getElementById('x-button2');
 
-
-yCollapseSlider2.addEventListener('input', function () {
-    if (yCollapseSlider2.value == 0) {
-        yButton2.disabled = false;
-    } else {
-        yButton2.disabled = true;
-    }
-});
-xCollapseSlider2.addEventListener('input', function () {
-    if (xCollapseSlider2.value == 0) {
-        xButton2.disabled = false;
-    } else {
-        xButton2.disabled = true;
-    }
-});
-
 // Assume chart2View is a global variable that stores the Vega view for chart2.
 
 xButton2.addEventListener('click', function () {
@@ -462,6 +439,14 @@ yButton2.addEventListener('click', function () {
         chart3view.signal("collapseYSignal", 1).runAsync();
     }
 });
+
+// Snaps the slider to either 0 or 1 on mouseup
+xCollapseSlider2.addEventListener("mouseup", () => {
+    snapSlider(xCollapseSlider2, "collapseXSignal2", xButton2, chart3view)
+})
+yCollapseSlider2.addEventListener("mouseup", () => {
+    snapSlider(yCollapseSlider2, "collapseYSignal2", yButton2, chart3view)
+})
 
 // Function to parse CSV data into an array of objects
 function parseCSV(csvData) {
@@ -519,4 +504,22 @@ function getRandomSample(data, sampleSize) {
         }
     }
     return sampledData;
+}
+
+// Function to snap sliders to either 1 or 0 when user release mouse on slider drag.
+function snapSlider (slider, viewSignal, viewButton, chartView) {
+    const val = parseFloat(slider.value);
+    if(val<0.1) {
+        viewButton.disabled = false;
+        slider.value = 0;
+        if(chartView) {
+            chartView.signal(viewSignal,0).runAsync();
+        }
+    } else {
+        slider.value = 1;
+        viewButton.disabled = true;
+        if(chartView) {
+            chartView.signal(viewSignal,1).runAsync();
+        }
+    }
 }
