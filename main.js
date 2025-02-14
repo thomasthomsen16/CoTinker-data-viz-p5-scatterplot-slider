@@ -417,7 +417,7 @@ const xButton2 = document.getElementById('x-button2');
 
 xButton2.addEventListener('click', function () {
     if (chart2View) {
-        chart2View.signal("showValence", true).runAsync();
+        chart2View.signal("showEnergy", true).runAsync();
     }
     // Rest the xCollapseSlider1 value to 1
     xCollapseSlider2.value = 1;
@@ -430,7 +430,7 @@ xButton2.addEventListener('click', function () {
 
 yButton2.addEventListener('click', function () {
     if (chart2View) {
-        chart2View.signal("showEnergy", true).runAsync();
+        chart2View.signal("showValence", true).runAsync();
     }
     // Reset the yCollapseSlider2 value to 1
     yCollapseSlider2.value = 1;
