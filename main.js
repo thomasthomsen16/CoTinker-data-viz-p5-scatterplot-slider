@@ -214,7 +214,7 @@ function chart2(sampledData, chartId) {
                         "field": "key",
                         "sort": ["tempo", "danceability", "energy", "valence"]
                     },
-                    "y": { "value": 150 }
+                    "y": { "value": 300 } // Halfway down the chart
                 },
                 "layer": [
                     {
@@ -236,7 +236,7 @@ function chart2(sampledData, chartId) {
                         "field": "key",
                         "sort": ["tempo", "danceability", "energy", "valence"]
                     },
-                    "y": { "value": 300 }
+                    "y": { "value": 600 } // Height of the chart
                 },
                 "layer": [
                     {
